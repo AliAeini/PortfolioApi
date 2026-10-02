@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PortfolioApi.Data;
+using PortfolioApi.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", () => "Portfolio API is running!");
-
+// app.MapGet("/", () => "Portfolio API is running!");
+app.MapProfileEndpoints(); 
 app.Run();
