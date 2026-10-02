@@ -1,8 +1,9 @@
+using PortfolioApi.Common;
+
 namespace PortfolioApi.Models;
 
-public class Profile
+public class Profile : BaseEntity
 {
-    public Guid Id { get; set; }
     public string FullName { get; set; } = null!;
     public string Bio { get; set; } = null!;
     public string? AvatarUrl { get; set; }
