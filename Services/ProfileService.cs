@@ -8,13 +8,16 @@ public class ProfileService : IProfileService
 {
     private readonly IProfileRepository _repository;
     private readonly IUserHandler _userHandler;
+    private readonly IFileStorageService _fileStorage;
 
     public ProfileService(
         IProfileRepository repository,
-        IUserHandler userHandler)
+        IUserHandler userHandler,
+        IFileStorageService fileStorage)
     {
         _repository = repository;
         _userHandler = userHandler;
+        _fileStorage = fileStorage;
     }
 
     public async Task<IEnumerable<ProfileDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -58,7 +61,7 @@ public class ProfileService : IProfileService
             password: request.OwnerPassword ?? string.Empty,
             fullName: request.FullName,
             cancellationToken: cancellationToken);
-            
+
         await _repository.SaveChangesAsync(cancellationToken);
 
         return MapToDto(profile);
@@ -82,9 +85,11 @@ public class ProfileService : IProfileService
 
         profile.Update(
             request.FullName, request.Bio,
-            request.Email, request.AvatarUrl, request.Location);
+            request.Email,
+            request.Location
+            );
 
-        _repository.Update(profile);
+        // _repository.Update(profile);
         await _repository.SaveChangesAsync(cancellationToken);
 
         return MapToDto(profile);
@@ -104,4 +109,26 @@ public class ProfileService : IProfileService
         => new(profile.Id, profile.FullName, profile.Bio,
                profile.AvatarUrl, profile.Email, profile.Location,
                profile.CreatedAt, profile.UpdatedAt);
+
+    public async Task<ProfileDto> UpdateAvatarAsync(
+        Guid id,
+        string avatarUrl,
+        CancellationToken cancellationToken = default)
+    {
+        var profile = await _repository.GetByIdAsync(id, cancellationToken);
+        if (profile is null)
+            throw new KeyNotFoundException($"Profile with id '{id}' not found");
+        if (!string.IsNullOrWhiteSpace(profile.AvatarUrl) && profile.AvatarUrl != avatarUrl)
+        {
+            _fileStorage.DeleteFile(profile.AvatarUrl);
+        }
+        if (string.IsNullOrWhiteSpace(avatarUrl))
+            throw new ArgumentException("Avatar URL is required.", nameof(avatarUrl));
+
+        profile.SetAvatarUrl(avatarUrl);
+        _repository.Update(profile);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return MapToDto(profile);
+    }
 }

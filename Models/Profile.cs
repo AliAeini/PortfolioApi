@@ -35,7 +35,6 @@ public class Profile : BaseEntity
         string fullName,
         string bio,
         string? email = null,
-        string? avatarUrl = null,
         string? location = null)
     {
         ValidateFields(fullName, bio, email);
@@ -43,7 +42,6 @@ public class Profile : BaseEntity
         FullName = fullName.Trim();
         Bio = bio.Trim();
         Email = email?.Trim().ToLowerInvariant();
-        AvatarUrl = avatarUrl?.Trim();
         Location = location?.Trim();
 
         UpdateTimestamp();
@@ -75,5 +73,11 @@ public class Profile : BaseEntity
             return addr.Address == email;
         }
         catch { return false; }
+    }
+
+    public void SetAvatarUrl(string avatarUrl)
+    {
+        AvatarUrl = avatarUrl?.Trim();
+        UpdateTimestamp();
     }
 }
