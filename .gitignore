@@ -59,3 +59,4 @@ Thumbs.db
 appsettings.Development.json
 appsettings.*.local.json
 secrets.jsonappsettings.Development.example.json
+git diff appsettings.json

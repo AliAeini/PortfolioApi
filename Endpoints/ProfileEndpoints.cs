@@ -10,9 +10,7 @@ public static class ProfileEndpoints
 {
     public static void MapProfileEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/profiles")
-                       .WithTags("Profiles")
-                       .AddFluentValidationAutoValidation();
+        var group = app.MapGroup("/api/profiles").WithTags("Profiles").AddFluentValidationAutoValidation();
 
         group.MapGet("/", async (
             [FromServices] IProfileService service,
@@ -37,8 +35,7 @@ public static class ProfileEndpoints
             CancellationToken ct) =>
         {
             var profile = await service.CreateAsync(req, ct);
-            return ApiResults.Created($"/api/profiles/{profile.Id}", profile,
-                                      "Profile created successfully");
+            return ApiResults.Created($"/api/profiles/{profile.Id}", profile, "Profile created successfully");
         });
 
         group.MapPut("/{id:guid}", async (
