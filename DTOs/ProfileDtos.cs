@@ -16,7 +16,8 @@ public record CreateProfileRequest(
     string Bio,
     string? AvatarUrl,
     string? Email,
-    string? Location
+    string? Location,
+    string? OwnerPassword
 );
 
 public record UpdateProfileRequest(

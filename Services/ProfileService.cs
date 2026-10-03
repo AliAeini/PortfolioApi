@@ -7,10 +7,14 @@ namespace PortfolioApi.Services;
 public class ProfileService : IProfileService
 {
     private readonly IProfileRepository _repository;
+    private readonly IUserHandler _userHandler;
 
-    public ProfileService(IProfileRepository repository)
+    public ProfileService(
+        IProfileRepository repository,
+        IUserHandler userHandler)
     {
         _repository = repository;
+        _userHandler = userHandler;
     }
 
     public async Task<IEnumerable<ProfileDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -47,6 +51,14 @@ public class ProfileService : IProfileService
             request.Location);
 
         await _repository.AddAsync(profile, cancellationToken);
+
+        await _userHandler.HandleProfileOwnerAsync(
+            profileId: profile.Id,
+            email: request.Email ?? string.Empty,
+            password: request.OwnerPassword ?? string.Empty,
+            fullName: request.FullName,
+            cancellationToken: cancellationToken);
+            
         await _repository.SaveChangesAsync(cancellationToken);
 
         return MapToDto(profile);
@@ -69,11 +81,8 @@ public class ProfileService : IProfileService
         }
 
         profile.Update(
-            request.FullName,
-            request.Bio,
-            request.Email,
-            request.AvatarUrl,
-            request.Location);
+            request.FullName, request.Bio,
+            request.Email, request.AvatarUrl, request.Location);
 
         _repository.Update(profile);
         await _repository.SaveChangesAsync(cancellationToken);
