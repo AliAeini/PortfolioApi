@@ -9,7 +9,7 @@ public abstract class BaseEntity
     public DateTime? UpdatedAt { get; protected set; }
     public Guid? CreatedByUserId { get; protected set; }
     public EntityStatus Status { get; protected set; }
- public uint RowVersion { get; protected set; }
+    public uint RowVersion { get; protected set; }
 
     protected BaseEntity()
     {

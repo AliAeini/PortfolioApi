@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using PortfolioApi.Common;
-using PortfolioApi.Data;
 using PortfolioApi.DTOs;
-using PortfolioApi.Models;
+using PortfolioApi.Services;
+using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 
 namespace PortfolioApi.Endpoints;
 
@@ -11,89 +11,52 @@ public static class ProfileEndpoints
     public static void MapProfileEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/profiles")
-                       .WithTags("Profiles");
+                       .WithTags("Profiles")
+                       .AddFluentValidationAutoValidation();
 
-        group.MapGet("/", async (AppDbContext db) =>
+        group.MapGet("/", async (
+            [FromServices] IProfileService service,
+            CancellationToken ct) =>
         {
-            var profiles = await db.Profiles
-                .Select(p => new ProfileDto(p.Id, p.FullName, p.Bio,
-                                            p.AvatarUrl, p.Email, p.Location))
-                .ToListAsync();
-
-            return ApiResults.Ok(profiles, $"{profiles.Count} profile(s) found");
+            var profiles = await service.GetAllAsync(ct);
+            return ApiResults.Ok(profiles, $"{profiles.Count()} profile(s) found");
         });
 
-        group.MapGet("/{id:guid}", async (Guid id, AppDbContext db) =>
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            [FromServices] IProfileService service,
+            CancellationToken ct) =>
         {
-            var profile = await db.Profiles.FindAsync(id);
-            if (profile is null)
-                return ApiResults.NotFound($"Profile with id '{id}' not found");
-
-            var dto = new ProfileDto(profile.Id, profile.FullName, profile.Bio,
-                                     profile.AvatarUrl, profile.Email, profile.Location);
-            return ApiResults.Ok(dto);
+            var profile = await service.GetByIdAsync(id, ct);
+            return ApiResults.Ok(profile);
         });
 
-        group.MapPost("/", async (CreateProfileRequest req, AppDbContext db) =>
+        group.MapPost("/", async (
+            CreateProfileRequest req,
+            [FromServices] IProfileService service,
+            CancellationToken ct) =>
         {
-            if (string.IsNullOrWhiteSpace(req.FullName))
-                return ApiResults.Fail("FullName is required",
-                    new List<string> { "FullName cannot be empty" });
-
-            if (string.IsNullOrWhiteSpace(req.Bio))
-                return ApiResults.Fail("Bio is required",
-                    new List<string> { "Bio cannot be empty" });
-
-            var profile = new Profile
-            {
-                FullName = req.FullName,
-                Bio = req.Bio,
-                AvatarUrl = req.AvatarUrl,
-                Email = req.Email,
-                Location = req.Location
-            };
-
-            db.Profiles.Add(profile);
-            await db.SaveChangesAsync();
-
-            var dto = new ProfileDto(profile.Id, profile.FullName, profile.Bio,
-                                     profile.AvatarUrl, profile.Email, profile.Location);
-            return ApiResults.Created($"/api/profiles/{profile.Id}", dto,
+            var profile = await service.CreateAsync(req, ct);
+            return ApiResults.Created($"/api/profiles/{profile.Id}", profile,
                                       "Profile created successfully");
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, UpdateProfileRequest req, AppDbContext db) =>
+        group.MapPut("/{id:guid}", async (
+            Guid id,
+            UpdateProfileRequest req,
+            [FromServices] IProfileService service,
+            CancellationToken ct) =>
         {
-            var profile = await db.Profiles.FindAsync(id);
-            if (profile is null)
-                return ApiResults.NotFound($"Profile with id '{id}' not found");
-
-            if (string.IsNullOrWhiteSpace(req.FullName))
-                return ApiResults.Fail("FullName is required",
-                    new List<string> { "FullName cannot be empty" });
-
-            profile.FullName = req.FullName;
-            profile.Bio = req.Bio;
-            profile.AvatarUrl = req.AvatarUrl;
-            profile.Email = req.Email;
-            profile.Location = req.Location;
-
-            await db.SaveChangesAsync();
-
-            var dto = new ProfileDto(profile.Id, profile.FullName, profile.Bio,
-                                     profile.AvatarUrl, profile.Email, profile.Location);
-            return ApiResults.Ok(dto, "Profile updated successfully");
+            var profile = await service.UpdateAsync(id, req, ct);
+            return ApiResults.Ok(profile, "Profile updated successfully");
         });
 
-        group.MapDelete("/{id:guid}", async (Guid id, AppDbContext db) =>
+        group.MapDelete("/{id:guid}", async (
+            Guid id,
+            [FromServices] IProfileService service,
+            CancellationToken ct) =>
         {
-            var profile = await db.Profiles.FindAsync(id);
-            if (profile is null)
-                return ApiResults.NotFound($"Profile with id '{id}' not found");
-
-            db.Profiles.Remove(profile);
-            await db.SaveChangesAsync();
-
+            await service.DeleteAsync(id, ct);
             return ApiResults.Ok("Profile deleted successfully");
         });
     }
