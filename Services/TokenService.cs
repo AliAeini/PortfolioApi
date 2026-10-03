@@ -5,11 +5,16 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PortfolioApi.Common;
+using PortfolioApi.Models;
+
+namespace PortfolioApi.Services;
 
 public class TokenService : ITokenService
 {
     private readonly JwtSettings _jwtSettings;
-    public TokenService(IOptions<JwtSettings> jwtSettings) => _jwtSettings = jwtSettings.Value;
+
+    public TokenService(IOptions<JwtSettings> jwtSettings)
+        => _jwtSettings = jwtSettings.Value;
 
     public string GenerateAccessToken(User user)
     {
@@ -17,7 +22,8 @@ public class TokenService : ITokenService
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.Role, user.Role),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
@@ -33,5 +39,6 @@ public class TokenService : ITokenService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public string GenerateRefreshToken() => Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    public string GenerateRefreshToken()
+        => Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 }
