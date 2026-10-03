@@ -6,7 +6,9 @@ public record ProfileDto(
     string Bio,
     string? AvatarUrl,
     string? Email,
-    string? Location
+    string? Location,
+    DateTime CreatedAt,
+    DateTime? UpdatedAt
 );
 
 public record CreateProfileRequest(
