@@ -82,12 +82,20 @@ public class ProfileService : IProfileService
             if (exists)
                 throw new InvalidOperationException("This email is already registered.");
         }
+        
+        if (!string.IsNullOrWhiteSpace(request.AvatarUrl)
+        && request.AvatarUrl != profile.AvatarUrl
+        && !string.IsNullOrWhiteSpace(profile.AvatarUrl))
+        {
+            _fileStorage.DeleteFile(profile.AvatarUrl);
+        }
 
         profile.Update(
             request.FullName,
             request.Bio,
             request.Email,
-            request.Location
+            request.Location,
+            request.AvatarUrl
             );
 
         // _repository.Update(profile);

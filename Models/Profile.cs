@@ -35,7 +35,8 @@ public class Profile : BaseEntity
         string fullName,
         string bio,
         string? email = null,
-        string? location = null)
+        string? location = null,
+        string? avatarUrl = null)
     {
         ValidateFields(fullName, bio, email);
 
@@ -43,7 +44,7 @@ public class Profile : BaseEntity
         Bio = bio.Trim();
         Email = email?.Trim().ToLowerInvariant();
         Location = location?.Trim();
-
+        AvatarUrl = avatarUrl?.Trim();
         UpdateTimestamp();
     }
 
