@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,15 @@ using PortfolioApi.Endpoints;
 using PortfolioApi.Infrastructure;
 using PortfolioApi.Repositories;
 using PortfolioApi.Services;
+using PortfolioApi.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<FileUploadSettings>(
+    builder.Configuration.GetSection(FileUploadSettings.SectionName));
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
@@ -21,6 +26,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserHandler, UserHandler>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
 var jwtSettings = builder.Configuration
     .GetSection("JwtSettings")
@@ -43,8 +49,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings.Issuer,
             ValidAudience = jwtSettings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
             ClockSkew = TimeSpan.Zero
         };
     });
@@ -55,10 +60,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("NextJsDev", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
@@ -83,6 +85,8 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -92,14 +96,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
 app.UseCors("NextJsDev");
-
 app.UseMiddleware<ValidationExceptionHandler>();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.MapUploadEndpoints();
 app.MapAuthEndpoints();
 app.MapProfileEndpoints();
 

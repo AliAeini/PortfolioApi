@@ -60,3 +60,7 @@ appsettings.Development.json
 appsettings.*.local.json
 secrets.jsonappsettings.Development.example.json
 git diff appsettings.json
+
+# Uploaded files
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep

@@ -27,3 +27,5 @@ public record UpdateProfileRequest(
     string? Email,
     string? Location
 );
+
+public record UpdateAvatarRequest(string AvatarUrl);
