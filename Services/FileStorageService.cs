@@ -20,7 +20,8 @@ public class FileStorageService : IFileStorageService
         CancellationToken cancellationToken = default)
     {
         if (files.Count > _settings.MaxFileCount)
-            throw new InvalidOperationException($"حداکثر {_settings.MaxFileCount} فایل مجاز است.");
+            throw new InvalidOperationException(
+                $"Maximum {_settings.MaxFileCount} file(s) allowed per request.");
 
         var savedPaths = new List<string>();
         var uploadDir = GetUploadDirectory(context);
@@ -52,17 +53,25 @@ public class FileStorageService : IFileStorageService
         CancellationToken cancellationToken)
     {
         if (file.Length > _settings.MaxFileSizeBytes)
-            throw new InvalidOperationException($"حجم فایل '{file.FileName}' بیش از حد مجاز است.");
+            throw new InvalidOperationException(
+                $"File '{file.FileName}' exceeds the maximum allowed size of {_settings.MaxFileSizeBytes / 1024 / 1024} MB.");
+
+        if (file.Length == 0)
+            throw new InvalidOperationException(
+                $"File '{file.FileName}' is empty.");
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (!_settings.AllowedExtensions.Contains(extension))
-            throw new InvalidOperationException($"پسوند '{extension}' مجاز نیست.");
+            throw new InvalidOperationException(
+                $"File extension '{extension}' is not allowed. Allowed: {string.Join(", ", _settings.AllowedExtensions)}.");
 
         if (!_settings.AllowedMimeTypes.Contains(file.ContentType.ToLowerInvariant()))
-            throw new InvalidOperationException($"نوع محتوای فایل '{file.FileName}' مجاز نیست.");
+            throw new InvalidOperationException(
+                $"Content type '{file.ContentType}' is not allowed.");
 
         if (!await IsFileSignatureValidAsync(file, file.ContentType))
-            throw new InvalidOperationException($"محتوای فایل '{file.FileName}' معتبر نیست.");
+            throw new InvalidOperationException(
+                $"File '{file.FileName}' content does not match its declared type.");
 
         var uniqueFileName = $"{Guid.NewGuid()}{extension}";
         var filePath = Path.Combine(uploadDir, uniqueFileName);
@@ -88,7 +97,7 @@ public class FileStorageService : IFileStorageService
             baseDir,
             _settings.UsersFolderName,
             userFolder,
-            context.Category 
+            context.Category
         };
 
         if (!string.IsNullOrWhiteSpace(context.SubFolder))

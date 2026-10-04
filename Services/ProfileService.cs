@@ -84,7 +84,8 @@ public class ProfileService : IProfileService
         }
 
         profile.Update(
-            request.FullName, request.Bio,
+            request.FullName,
+            request.Bio,
             request.Email,
             request.Location
             );
@@ -106,9 +107,16 @@ public class ProfileService : IProfileService
     }
 
     private static ProfileDto MapToDto(Profile profile)
-        => new(profile.Id, profile.FullName, profile.Bio,
-               profile.AvatarUrl, profile.Email, profile.Location,
-               profile.CreatedAt, profile.UpdatedAt);
+        => new(
+            profile.Id,
+            profile.FullName,
+            profile.Bio,
+            profile.AvatarUrl,
+            profile.Email,
+            profile.Location,
+            profile.CreatedAt,
+            profile.UpdatedAt
+        );
 
     public async Task<ProfileDto> UpdateAvatarAsync(
         Guid id,
