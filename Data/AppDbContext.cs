@@ -10,7 +10,14 @@ public class AppDbContext : DbContext
 
     public DbSet<Profile> Profiles => Set<Profile>();
     public DbSet<User> Users => Set<User>();
-
+    public DbSet<Skill> Skills => Set<Skill>();
+    public DbSet<SkillCategory> SkillCategories => Set<SkillCategory>();
+    public DbSet<Education> Educations => Set<Education>();
+    public DbSet<Experience> Experiences => Set<Experience>();
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<ProjectCategory> ProjectCategories => Set<ProjectCategory>();
+    public DbSet<SocialLink> SocialLinks => Set<SocialLink>();
+    public DbSet<ProfileSkill> ProfileSkills => Set<ProfileSkill>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -34,4 +34,9 @@ public abstract class BaseEntity
         Status = status;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void SetId(Guid id)
+    {
+        Id = id;
+    }
 }
