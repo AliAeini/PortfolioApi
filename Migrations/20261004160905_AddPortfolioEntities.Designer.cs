@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PortfolioApi.Data;
@@ -11,9 +12,11 @@ using PortfolioApi.Data;
 namespace PortfolioApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261004160905_AddPortfolioEntities")]
+    partial class AddPortfolioEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -240,65 +243,6 @@ namespace PortfolioApi.Migrations
                     b.HasIndex("Email");
 
                     b.ToTable("Profiles", (string)null);
-                });
-
-            modelBuilder.Entity("PortfolioApi.Models.ProfileSkill", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CreatedByUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("DisplayOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
-
-                    b.Property<int>("Level")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("ProfileId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("RevSeq")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
-
-                    b.Property<long>("RowId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("RowId"));
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<Guid>("SkillId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SkillId");
-
-                    b.HasIndex("ProfileId", "SkillId")
-                        .IsUnique()
-                        .HasFilter("\"Status\" <> 5");
-
-                    b.ToTable("ProfileSkills", (string)null);
                 });
 
             modelBuilder.Entity("PortfolioApi.Models.Project", b =>
@@ -699,25 +643,6 @@ namespace PortfolioApi.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("PortfolioApi.Models.ProfileSkill", b =>
-                {
-                    b.HasOne("PortfolioApi.Models.Profile", "Profile")
-                        .WithMany("ProfileSkills")
-                        .HasForeignKey("ProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PortfolioApi.Models.Skill", "Skill")
-                        .WithMany("ProfileSkills")
-                        .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Profile");
-
-                    b.Navigation("Skill");
-                });
-
             modelBuilder.Entity("PortfolioApi.Models.Project", b =>
                 {
                     b.HasOne("PortfolioApi.Models.ProjectCategory", "ProjectCategory")
@@ -739,19 +664,9 @@ namespace PortfolioApi.Migrations
                     b.Navigation("SkillCategory");
                 });
 
-            modelBuilder.Entity("PortfolioApi.Models.Profile", b =>
-                {
-                    b.Navigation("ProfileSkills");
-                });
-
             modelBuilder.Entity("PortfolioApi.Models.ProjectCategory", b =>
                 {
                     b.Navigation("Projects");
-                });
-
-            modelBuilder.Entity("PortfolioApi.Models.Skill", b =>
-                {
-                    b.Navigation("ProfileSkills");
                 });
 
             modelBuilder.Entity("PortfolioApi.Models.SkillCategory", b =>
