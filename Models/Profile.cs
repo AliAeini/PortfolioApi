@@ -61,6 +61,8 @@ public class Profile : BaseEntity
         bool availableForHire,
         string? email,
         string? phoneNumber,
+        string? avatarUrl,
+        string? coverImageUrl,  
         string? location,
         string? website,
         DateTime? dateOfBirth,
@@ -71,6 +73,8 @@ public class Profile : BaseEntity
         ValidateFields(fullName, bio, email);
 
         FullName = fullName.Trim();
+        AvatarUrl = avatarUrl;
+        CoverImageUrl = coverImageUrl;
         Bio = bio.Trim();
         ShortBio = string.IsNullOrWhiteSpace(shortBio) ? null : shortBio.Trim();
         JobCategoryId = jobCategoryId;
