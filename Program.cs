@@ -6,8 +6,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using PortfolioApi.Common;
 using PortfolioApi.Data;
+using PortfolioApi.Data.Seeders;
 using PortfolioApi.Endpoints;
 using PortfolioApi.Infrastructure;
+using PortfolioApi.Interfaces;
 using PortfolioApi.Repositories;
 using PortfolioApi.Services;
 using PortfolioApi.Settings;
@@ -27,6 +29,18 @@ builder.Services.AddScoped<IUserHandler, UserHandler>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<ISeeder, SkillCategorySeeder>();
+builder.Services.AddScoped<ISeeder, ProjectCategorySeeder>();
+builder.Services.AddScoped<ISeeder, SocialPlatformSeeder>();
+builder.Services.AddScoped<DataSeederOrchestrator>();
+builder.Services.AddScoped<ISeeder, SkillSeeder>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+builder.Services.AddScoped<IProfileSkillRepository, ProfileSkillRepository>();
+builder.Services.AddScoped<ISkillService, SkillService>();
+builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
+builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
+
 
 var jwtSettings = builder.Configuration
     .GetSection("JwtSettings")
@@ -105,4 +119,13 @@ app.MapUploadEndpoints();
 app.MapAuthEndpoints();
 app.MapProfileEndpoints();
 
+using (var scope = app.Services.CreateScope())
+{
+    var orchestrator = scope.ServiceProvider.GetRequiredService<DataSeederOrchestrator>();
+    await orchestrator.SeedAllAsync();
+}
+
+app.MapLookupEndpoints();
+app.MapSkillEndpoints();
+app.MapProfileSkillEndpoints();
 app.Run();
