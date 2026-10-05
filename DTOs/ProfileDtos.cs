@@ -4,9 +4,22 @@ public record ProfileDto(
     Guid Id,
     string FullName,
     string Bio,
+    string? ShortBio,
+    Guid? JobCategoryId,
+    string? JobCategoryName,
+    string? JobTitle,
+    int? YearsOfExperience,
+    bool AvailableForHire,
     string? AvatarUrl,
+    string? CoverImageUrl,
     string? Email,
+    string? PhoneNumber,
     string? Location,
+    string? Website,
+    DateTime? DateOfBirth,
+    string? Nationality,
+    string? Languages,
+    string? Hobbies,
     DateTime CreatedAt,
     DateTime? UpdatedAt
 );
@@ -14,7 +27,6 @@ public record ProfileDto(
 public record CreateProfileRequest(
     string FullName,
     string Bio,
-    string? AvatarUrl,
     string? Email,
     string? Location,
     string? OwnerPassword
@@ -23,9 +35,32 @@ public record CreateProfileRequest(
 public record UpdateProfileRequest(
     string FullName,
     string Bio,
-    string? AvatarUrl,
+    string? ShortBio,
+    Guid? JobCategoryId,
+    string? JobTitle,
+    int? YearsOfExperience,
+    bool AvailableForHire,
     string? Email,
-    string? Location
+    string? PhoneNumber,
+    string? Location,
+    string? Website,
+    DateTime? DateOfBirth,
+    string? Nationality,
+    string? Languages,
+    string? Hobbies
 );
 
 public record UpdateAvatarRequest(string AvatarUrl);
+
+public record UpdateCoverImageRequest(string CoverImageUrl);
+
+public record ProfileSummaryDto(
+    Guid Id,
+    string FullName,
+    string? JobTitle,
+    string? JobCategoryName,
+    string? AvatarUrl,
+    string? Location,
+    bool AvailableForHire,
+    int SkillCount
+);

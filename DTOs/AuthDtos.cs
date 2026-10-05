@@ -11,10 +11,18 @@ public record RegisterRequest(
     string? FullName
 );
 
+public record UserInfoDto(
+    Guid Id,
+    string Email,
+    string? FullName,
+    string Role
+);
+
 public record AuthResponse(
     string AccessToken,
     string RefreshToken,
-    DateTime AccessTokenExpiresAt
+    DateTime AccessTokenExpiresAt,
+    UserInfoDto User
 );
 
 public record RefreshRequest(
