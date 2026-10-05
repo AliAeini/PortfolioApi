@@ -16,4 +16,9 @@ public static class ApiResults
 
     public static IResult NotFound(string message = "Resource not found")
         => Results.NotFound(ApiResponse<object>.NotFound(message));
+
+    public static IResult Unauthorized(string message = "Unauthorized")
+        => Results.Json(
+            ApiResponse<object>.Fail(message),
+            statusCode: StatusCodes.Status401Unauthorized);
 }

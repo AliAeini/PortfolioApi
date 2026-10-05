@@ -2,6 +2,7 @@ using PortfolioApi.DTOs;
 using PortfolioApi.Models;
 using PortfolioApi.Repositories;
 
+
 namespace PortfolioApi.Services;
 
 public class ProfileService : IProfileService
@@ -20,11 +21,22 @@ public class ProfileService : IProfileService
         _fileStorage = fileStorage;
     }
 
-    public async Task<IEnumerable<ProfileDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ProfileSummaryDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var profiles = await _repository.GetAllAsync(cancellationToken);
-        return profiles.Select(MapToDto);
+        return profiles.Select(MapToSummaryDto);
     }
+
+    private static ProfileSummaryDto MapToSummaryDto(Profile profile)
+        => new(
+            profile.Id,
+            profile.FullName,
+            profile.JobTitle,
+            profile.JobCategory?.Name,
+            profile.AvatarUrl,
+            profile.Location,
+            profile.AvailableForHire,
+            profile.ProfileSkills?.Count ?? 0);
 
     public async Task<ProfileDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
@@ -50,7 +62,7 @@ public class ProfileService : IProfileService
             request.FullName,
             request.Bio,
             request.Email,
-            request.AvatarUrl,
+            avatarUrl: null,
             request.Location);
 
         await _repository.AddAsync(profile, cancellationToken);
@@ -82,23 +94,46 @@ public class ProfileService : IProfileService
             if (exists)
                 throw new InvalidOperationException("This email is already registered.");
         }
-        
-        if (!string.IsNullOrWhiteSpace(request.AvatarUrl)
-        && request.AvatarUrl != profile.AvatarUrl
-        && !string.IsNullOrWhiteSpace(profile.AvatarUrl))
-        {
-            _fileStorage.DeleteFile(profile.AvatarUrl);
-        }
 
         profile.Update(
             request.FullName,
             request.Bio,
+            request.ShortBio,
+            request.JobCategoryId,
+            request.JobTitle,
+            request.YearsOfExperience,
+            request.AvailableForHire,
             request.Email,
+            request.PhoneNumber,
             request.Location,
-            request.AvatarUrl
-            );
+            request.Website,
+            request.DateOfBirth,
+            request.Nationality,
+            request.Languages,
+            request.Hobbies);
 
-        // _repository.Update(profile);
+        await _repository.SaveChangesAsync(cancellationToken);
+        return MapToDto(profile);
+    }
+
+    public async Task<ProfileDto> UpdateAvatarAsync(
+        Guid id,
+        string avatarUrl,
+        CancellationToken cancellationToken = default)
+    {
+        var profile = await _repository.GetByIdAsync(id, cancellationToken);
+        if (profile is null)
+            throw new KeyNotFoundException($"Profile with id '{id}' not found");
+
+        if (string.IsNullOrWhiteSpace(avatarUrl))
+            throw new ArgumentException("Avatar URL is required.", nameof(avatarUrl));
+
+        if (!string.IsNullOrWhiteSpace(profile.AvatarUrl) && profile.AvatarUrl != avatarUrl)
+        {
+            _fileStorage.DeleteFile(profile.AvatarUrl);
+        }
+
+        profile.SetAvatarUrl(avatarUrl);
         await _repository.SaveChangesAsync(cancellationToken);
 
         return MapToDto(profile);
@@ -110,6 +145,11 @@ public class ProfileService : IProfileService
         if (profile is null)
             throw new KeyNotFoundException($"Profile with id '{id}' not found");
 
+        if (!string.IsNullOrWhiteSpace(profile.AvatarUrl))
+        {
+            _fileStorage.DeleteFile(profile.AvatarUrl);
+        }
+
         _repository.Remove(profile);
         await _repository.SaveChangesAsync(cancellationToken);
     }
@@ -119,32 +159,23 @@ public class ProfileService : IProfileService
             profile.Id,
             profile.FullName,
             profile.Bio,
+            profile.ShortBio,
+            profile.JobCategoryId,
+            profile.JobCategory?.Name,
+            profile.JobTitle,
+            profile.YearsOfExperience,
+            profile.AvailableForHire,
             profile.AvatarUrl,
+            profile.CoverImageUrl,
             profile.Email,
+            profile.PhoneNumber,
             profile.Location,
+            profile.Website,
+            profile.DateOfBirth,
+            profile.Nationality,
+            profile.Languages,
+            profile.Hobbies,
             profile.CreatedAt,
             profile.UpdatedAt
         );
-
-    public async Task<ProfileDto> UpdateAvatarAsync(
-        Guid id,
-        string avatarUrl,
-        CancellationToken cancellationToken = default)
-    {
-        var profile = await _repository.GetByIdAsync(id, cancellationToken);
-        if (profile is null)
-            throw new KeyNotFoundException($"Profile with id '{id}' not found");
-        if (!string.IsNullOrWhiteSpace(profile.AvatarUrl) && profile.AvatarUrl != avatarUrl)
-        {
-            _fileStorage.DeleteFile(profile.AvatarUrl);
-        }
-        if (string.IsNullOrWhiteSpace(avatarUrl))
-            throw new ArgumentException("Avatar URL is required.", nameof(avatarUrl));
-
-        profile.SetAvatarUrl(avatarUrl);
-        _repository.Update(profile);
-        await _repository.SaveChangesAsync(cancellationToken);
-
-        return MapToDto(profile);
-    }
 }

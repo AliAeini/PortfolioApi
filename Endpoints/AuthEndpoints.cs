@@ -28,15 +28,60 @@ public static class AuthEndpoints
             var refreshToken = tokenService.GenerateRefreshToken();
             var jwtSettings = jwtOptions.Value;
 
-            user.SetRefreshToken(refreshToken, DateTime.UtcNow.AddDays(jwtSettings.RefreshTokenExpirationDays));
+            user.SetRefreshToken(
+                refreshToken,
+                DateTime.UtcNow.AddDays(jwtSettings.RefreshTokenExpirationDays));
             await db.SaveChangesAsync();
+
+            var userInfo = new UserInfoDto(
+                user.Id,
+                user.Email,
+                user.FullName,
+                user.Role);
 
             var response = new AuthResponse(
                 accessToken,
                 refreshToken,
-                DateTime.UtcNow.AddMinutes(jwtSettings.AccessTokenExpirationMinutes));
+                DateTime.UtcNow.AddMinutes(jwtSettings.AccessTokenExpirationMinutes),
+                userInfo);
 
             return ApiResults.Ok(response, "Login successful");
+        });
+
+        group.MapPost("/refresh", async (
+            RefreshRequest req,
+            ITokenService tokenService,
+            IOptions<JwtSettings> jwtOptions,
+            AppDbContext db) =>
+        {
+            var user = await db.Users
+                .FirstOrDefaultAsync(u => u.RefreshToken == req.RefreshToken);
+
+            if (user is null || user.RefreshTokenExpiryTime < DateTime.UtcNow)
+                return ApiResults.Unauthorized("Invalid or expired refresh token");
+
+            var newAccessToken = tokenService.GenerateAccessToken(user);
+            var newRefreshToken = tokenService.GenerateRefreshToken();
+            var jwtSettings = jwtOptions.Value;
+
+            user.SetRefreshToken(
+                newRefreshToken,
+                DateTime.UtcNow.AddDays(jwtSettings.RefreshTokenExpirationDays));
+            await db.SaveChangesAsync();
+
+            var userInfo = new UserInfoDto(
+                user.Id,
+                user.Email,
+                user.FullName,
+                user.Role);
+
+            var response = new AuthResponse(
+                newAccessToken,
+                newRefreshToken,
+                DateTime.UtcNow.AddMinutes(jwtSettings.AccessTokenExpirationMinutes),
+                userInfo);
+
+            return ApiResults.Ok(response, "Token refreshed");
         });
     }
 }

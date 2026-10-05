@@ -17,6 +17,6 @@ public class SocialLinkConfiguration : BaseEntityConfiguration<SocialLink>
         builder.Property(s => s.IconUrl).HasMaxLength(500);
         builder.Property(s => s.DisplayOrder).HasDefaultValue(0);
 
-        builder.HasIndex(s => s.Platform);
+        builder.HasIndex(s => s.ProfileId);
     }
 }
