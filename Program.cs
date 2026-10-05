@@ -40,7 +40,7 @@ builder.Services.AddScoped<IProfileSkillRepository, ProfileSkillRepository>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
 builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
-
+builder.Services.AddScoped<ISeeder, JobCategorySeeder>();
 
 var jwtSettings = builder.Configuration
     .GetSection("JwtSettings")

@@ -18,6 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<ProjectCategory> ProjectCategories => Set<ProjectCategory>();
     public DbSet<SocialLink> SocialLinks => Set<SocialLink>();
     public DbSet<ProfileSkill> ProfileSkills => Set<ProfileSkill>();
+    public DbSet<JobCategory> JobCategories => Set<JobCategory>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
