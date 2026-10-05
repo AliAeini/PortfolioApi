@@ -57,15 +57,15 @@ public static class ProfileEndpoints
             return ApiResults.Ok("Profile deleted successfully");
         });
 
-        group.MapPatch("/{id:guid}/avatar", async (
-           Guid id,
-           UpdateAvatarRequest req,
-           [FromServices] IProfileService service,
-           CancellationToken ct) =>
-       {
-           var profile = await service.UpdateAvatarAsync(id, req.AvatarUrl, ct);
-           return ApiResults.Ok(profile, "Avatar updated successfully");
-       })
-       .RequireAuthorization(policy => policy.RequireRole("Owner", "Admin"));
+        //     group.MapPatch("/{id:guid}/avatar", async (
+        //        Guid id,
+        //        UpdateAvatarRequest req,
+        //        [FromServices] IProfileService service,
+        //        CancellationToken ct) =>
+        //    {
+        //        var profile = await service.UpdateAvatarAsync(id, req.AvatarUrl, ct);
+        //        return ApiResults.Ok(profile, "Avatar updated successfully");
+        //    })
+        //    .RequireAuthorization(policy => policy.RequireRole("Owner", "Admin"));
     }
 }
