@@ -95,6 +95,11 @@ public class ProfileService : IProfileService
                 throw new InvalidOperationException("This email is already registered.");
         }
 
+        if (!string.IsNullOrWhiteSpace(request.AvatarUrl) && request.AvatarUrl != profile.AvatarUrl && !string.IsNullOrWhiteSpace(profile.AvatarUrl))
+        {
+            _fileStorage.DeleteFile(profile.AvatarUrl);
+        }
+
         profile.Update(
             request.FullName,
             request.Bio,
@@ -105,6 +110,8 @@ public class ProfileService : IProfileService
             request.AvailableForHire,
             request.Email,
             request.PhoneNumber,
+            request.AvatarUrl,
+            request.CoverImageUrl,
             request.Location,
             request.Website,
             request.DateOfBirth,
