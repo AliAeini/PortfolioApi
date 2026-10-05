@@ -9,6 +9,7 @@ public class Profile : BaseEntity
     public string? AvatarUrl { get; private set; }
     public string? Email { get; private set; }
     public string? Location { get; private set; }
+    public ICollection<ProfileSkill> ProfileSkills { get; private set; } = new List<ProfileSkill>();
 
     private Profile() { }
 
