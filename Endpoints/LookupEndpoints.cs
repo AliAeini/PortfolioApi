@@ -29,6 +29,15 @@ public static class LookupEndpoints
 
             return ApiResults.Ok(categories, $"{categories.Count} project categories found");
         });
+        
+        group.MapGet("/job-categories", async (AppDbContext db, CancellationToken ct) =>
+               {
+                   var categories = await db.JobCategories
+                       .OrderBy(c => c.DisplayOrder)
+                       .Select(c => new { c.Id, c.Name, c.Description, c.DisplayOrder })
+                       .ToListAsync(ct);
 
+                   return ApiResults.Ok(categories, $"{categories.Count} job categories found");
+               });
     }
 }
