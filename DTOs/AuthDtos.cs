@@ -22,7 +22,8 @@ public record AuthResponse(
     string AccessToken,
     string RefreshToken,
     DateTime AccessTokenExpiresAt,
-    UserInfoDto User
+    UserInfoDto User,
+    Guid ProfileId
 );
 
 public record RefreshRequest(
