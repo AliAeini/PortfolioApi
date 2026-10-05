@@ -29,14 +29,14 @@ public static class ProfileEndpoints
             return ApiResults.Ok(profile);
         });
 
-        group.MapPost("/", async (
-            CreateProfileRequest req,
-            [FromServices] IProfileService service,
-            CancellationToken ct) =>
-        {
-            var profile = await service.CreateAsync(req, ct);
-            return ApiResults.Created($"/api/profiles/{profile.Id}", profile, "Profile created successfully");
-        });
+        // group.MapPost("/", async (
+        //     CreateProfileRequest req,
+        //     [FromServices] IProfileService service,
+        //     CancellationToken ct) =>
+        // {
+        //     var profile = await service.CreateAsync(req, ct);
+        //     return ApiResults.Created($"/api/profiles/{profile.Id}", profile, "Profile created successfully");
+        // });
 
         group.MapPut("/{id:guid}", async (
             Guid id,
@@ -48,14 +48,14 @@ public static class ProfileEndpoints
             return ApiResults.Ok(profile, "Profile updated successfully");
         });
 
-        group.MapDelete("/{id:guid}", async (
-            Guid id,
-            [FromServices] IProfileService service,
-            CancellationToken ct) =>
-        {
-            await service.DeleteAsync(id, ct);
-            return ApiResults.Ok("Profile deleted successfully");
-        });
+        // group.MapDelete("/{id:guid}", async (
+        //     Guid id,
+        //     [FromServices] IProfileService service,
+        //     CancellationToken ct) =>
+        // {
+        //     await service.DeleteAsync(id, ct);
+        //     return ApiResults.Ok("Profile deleted successfully");
+        // });
 
         //     group.MapPatch("/{id:guid}/avatar", async (
         //        Guid id,

@@ -66,15 +66,20 @@ public class ProfileService : IProfileService
             request.Location);
 
         await _repository.AddAsync(profile, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
 
-        await _userHandler.HandleProfileOwnerAsync(
+        var userId = await _userHandler.HandleProfileOwnerAsync(
             profileId: profile.Id,
             email: request.Email ?? string.Empty,
             password: request.OwnerPassword ?? string.Empty,
             fullName: request.FullName,
             cancellationToken: cancellationToken);
 
-        await _repository.SaveChangesAsync(cancellationToken);
+        if (userId.HasValue)
+        {
+            profile.SetCreatedBy(userId.Value);
+            await _repository.SaveChangesAsync(cancellationToken);
+        }
 
         return MapToDto(profile);
     }
