@@ -4,9 +4,10 @@ namespace PortfolioApi.Models;
 
 public class SocialLink : BaseEntity
 {
-    public Guid ProfileId { get; private set; } 
-    public Profile Profile { get; private set; } = null!; 
-    public string Platform { get; private set; } = null!;
+    public Guid ProfileId { get; private set; }
+    public Profile Profile { get; private set; } = null!;
+
+    public SocialPlatform Platform { get; private set; }
     public string Url { get; private set; } = null!;
     public string? IconUrl { get; private set; }
     public int DisplayOrder { get; private set; }
@@ -15,21 +16,27 @@ public class SocialLink : BaseEntity
 
     public static SocialLink Create(
         Guid profileId,
-        string platform,
+        SocialPlatform platform,
         string url,
         string? iconUrl = null,
         int displayOrder = 0)
     {
-        if (string.IsNullOrWhiteSpace(platform))
-            throw new ArgumentException("Platform is required.", nameof(platform));
+        if (profileId == Guid.Empty)
+            throw new ArgumentException("ProfileId is required.", nameof(profileId));
+
+        if (!Enum.IsDefined(typeof(SocialPlatform), platform))
+            throw new ArgumentException("Invalid platform.", nameof(platform));
 
         if (string.IsNullOrWhiteSpace(url))
             throw new ArgumentException("URL is required.", nameof(url));
 
+        if (url.Length > 500)
+            throw new ArgumentException("URL must not exceed 500 characters.", nameof(url));
+
         return new SocialLink
         {
             ProfileId = profileId,
-            Platform = platform.Trim(),
+            Platform = platform,
             Url = url.Trim(),
             IconUrl = string.IsNullOrWhiteSpace(iconUrl) ? null : iconUrl.Trim(),
             DisplayOrder = displayOrder,
@@ -37,12 +44,21 @@ public class SocialLink : BaseEntity
         };
     }
 
-    public void Update(string platform, string url, string? iconUrl, int displayOrder)
+    public void Update(
+        SocialPlatform platform,
+        string url,
+        string? iconUrl,
+        int displayOrder)
     {
-        Platform = platform.Trim();
+        if (!Enum.IsDefined(typeof(SocialPlatform), platform))
+            throw new ArgumentException("Invalid platform.", nameof(platform));
+
+        if (string.IsNullOrWhiteSpace(url))
+            throw new ArgumentException("URL is required.", nameof(url));
+
+        Platform = platform;
         Url = url.Trim();
         IconUrl = string.IsNullOrWhiteSpace(iconUrl) ? null : iconUrl.Trim();
         DisplayOrder = displayOrder;
-        UpdateTimestamp();
     }
 }
