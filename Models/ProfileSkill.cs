@@ -6,12 +6,12 @@ public class ProfileSkill : BaseEntity
 {
     public Guid ProfileId { get; private set; }
     public Profile Profile { get; private set; } = null!;
-
     public Guid SkillId { get; private set; }
     public Skill Skill { get; private set; } = null!;
-
     public int Level { get; private set; }
     public int DisplayOrder { get; private set; }
+
+    public ICollection<ProjectSkillRef> ProjectSkillRefs { get; private set; } = new List<ProjectSkillRef>();
 
     private ProfileSkill() { }
 

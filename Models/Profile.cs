@@ -31,6 +31,7 @@ public class Profile : BaseEntity
     public ICollection<SocialLink> SocialLinks { get; private set; } = new List<SocialLink>();
     public ICollection<Education> Educations { get; private set; } = new List<Education>();
     public ICollection<Experience> Experiences { get; private set; } = new List<Experience>();
+    public ICollection<Project> Projects { get; private set; } = new List<Project>();
 
     private Profile() { }
 
