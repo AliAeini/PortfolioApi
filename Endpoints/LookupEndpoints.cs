@@ -52,5 +52,18 @@ public static class LookupEndpoints
 
                 return ApiResults.Ok(degrees, $"{degrees.Count} degree levels found");
             });
+
+        group.MapGet("/employment-types", () =>
+            {
+                var types = Enum.GetValues<EmploymentType>()
+                    .Select(t => new
+                    {
+                        Value = (int)t,
+                        Name = t.ToString()
+                    })
+                    .ToList();
+
+                return ApiResults.Ok(types, $"{types.Count} employment types found");
+            });
     }
 }

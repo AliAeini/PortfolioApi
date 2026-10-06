@@ -12,7 +12,7 @@ using PortfolioApi.Data;
 namespace PortfolioApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261006082348_InitialCreate")]
+    [Migration("20261006114101_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -136,9 +136,8 @@ namespace PortfolioApi.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(0);
 
-                    b.Property<string>("EmploymentType")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<int>("EmploymentType")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("timestamp with time zone");
@@ -151,6 +150,9 @@ namespace PortfolioApi.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("RevSeq")
                         .ValueGeneratedOnAdd()
@@ -179,6 +181,8 @@ namespace PortfolioApi.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProfileId");
 
                     b.HasIndex("StartDate");
 
@@ -824,6 +828,17 @@ namespace PortfolioApi.Migrations
                     b.Navigation("Profile");
                 });
 
+            modelBuilder.Entity("PortfolioApi.Models.Experience", b =>
+                {
+                    b.HasOne("PortfolioApi.Models.Profile", "Profile")
+                        .WithMany("Experiences")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+                });
+
             modelBuilder.Entity("PortfolioApi.Models.Profile", b =>
                 {
                     b.HasOne("PortfolioApi.Models.JobCategory", "JobCategory")
@@ -893,6 +908,8 @@ namespace PortfolioApi.Migrations
             modelBuilder.Entity("PortfolioApi.Models.Profile", b =>
                 {
                     b.Navigation("Educations");
+
+                    b.Navigation("Experiences");
 
                     b.Navigation("ProfileSkills");
 

@@ -13,34 +13,6 @@ namespace PortfolioApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Experiences",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Company = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Position = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    Description = table.Column<string>(type: "character varying(3000)", maxLength: 3000, nullable: true),
-                    Location = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
-                    CompanyUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    EmploymentType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    DisplayOrder = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    RowId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RevSeq = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
-                    Status = table.Column<int>(type: "integer", nullable: false),
-                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Experiences", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "JobCategories",
                 columns: table => new
                 {
@@ -276,6 +248,41 @@ namespace PortfolioApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Experiences",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Company = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Position = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    EmploymentType = table.Column<int>(type: "integer", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Description = table.Column<string>(type: "character varying(3000)", maxLength: 3000, nullable: true),
+                    Location = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    CompanyUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    DisplayOrder = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    RowId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RevSeq = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Experiences", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Experiences_Profiles_ProfileId",
+                        column: x => x.ProfileId,
+                        principalTable: "Profiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SocialLinks",
                 columns: table => new
                 {
@@ -349,6 +356,11 @@ namespace PortfolioApi.Migrations
                 name: "IX_Educations_StartDate",
                 table: "Educations",
                 column: "StartDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Experiences_ProfileId",
+                table: "Experiences",
+                column: "ProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Experiences_StartDate",

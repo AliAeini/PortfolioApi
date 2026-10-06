@@ -16,12 +16,13 @@ using PortfolioApi.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddHttpContextAccessor();
 
-builder.Services.Configure<FileUploadSettings>(
-    builder.Configuration.GetSection(FileUploadSettings.SectionName));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.Configure<FileUploadSettings>(builder.Configuration.GetSection(FileUploadSettings.SectionName));
+
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -43,6 +44,8 @@ builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
 builder.Services.AddScoped<ISeeder, JobCategorySeeder>();
 builder.Services.AddScoped<IEducationRepository, EducationRepository>();
 builder.Services.AddScoped<IEducationService, EducationService>();
+builder.Services.AddScoped<IExperienceService, ExperienceService>();
+builder.Services.AddScoped<IExperienceRepository, ExperienceRepository>();
 
 var jwtSettings = builder.Configuration
     .GetSection("JwtSettings")
@@ -76,7 +79,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("NextJsDev", policy =>
     {
-        policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins(
+                "http://localhost:3000",
+                "http://10.234.38.79:3000"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -121,6 +130,7 @@ app.MapUploadEndpoints();
 app.MapAuthEndpoints();
 app.MapProfileEndpoints();
 app.MapEducationEndpoints();
+app.MapExperienceEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

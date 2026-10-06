@@ -30,6 +30,7 @@ public class Profile : BaseEntity
     public ICollection<ProfileSkill> ProfileSkills { get; private set; } = new List<ProfileSkill>();
     public ICollection<SocialLink> SocialLinks { get; private set; } = new List<SocialLink>();
     public ICollection<Education> Educations { get; private set; } = new List<Education>();
+    public ICollection<Experience> Experiences { get; private set; } = new List<Experience>();
 
     private Profile() { }
 
