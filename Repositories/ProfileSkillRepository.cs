@@ -25,12 +25,11 @@ public class ProfileSkillRepository : Repository<ProfileSkill>, IProfileSkillRep
             .FirstOrDefaultAsync(ps => ps.ProfileId == profileId && ps.SkillId == skillId, cancellationToken);
 
     public async Task<ProfileSkill?> GetByIdWithSkillAsync(
-     Guid id, CancellationToken cancellationToken = default)
-     => await _dbSet
-         .Include(ps => ps.Skill)
-             .ThenInclude(s => s.SkillCategory)
-         .AsNoTracking() 
-         .FirstOrDefaultAsync(ps => ps.Id == id, cancellationToken);
+    Guid id, CancellationToken cancellationToken = default)
+    => await _dbSet
+        .Include(ps => ps.Skill)
+            .ThenInclude(s => s.SkillCategory)
+        .FirstOrDefaultAsync(ps => ps.Id == id, cancellationToken);
 
     public async Task<bool> ExistsAsync(
         Guid profileId, Guid skillId, CancellationToken cancellationToken = default)
