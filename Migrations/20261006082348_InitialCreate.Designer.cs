@@ -12,8 +12,8 @@ using PortfolioApi.Data;
 namespace PortfolioApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261005073141_AddProfileSkills")]
-    partial class AddProfileSkills
+    [Migration("20261006082348_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,10 +36,8 @@ namespace PortfolioApi.Migrations
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Degree")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                    b.Property<int>("Degree")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
@@ -71,6 +69,9 @@ namespace PortfolioApi.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("RevSeq")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -98,6 +99,8 @@ namespace PortfolioApi.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProfileId");
 
                     b.HasIndex("StartDate");
 
@@ -182,19 +185,10 @@ namespace PortfolioApi.Migrations
                     b.ToTable("Experiences", (string)null);
                 });
 
-            modelBuilder.Entity("PortfolioApi.Models.Profile", b =>
+            modelBuilder.Entity("PortfolioApi.Models.JobCategory", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("AvatarUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Bio")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -202,18 +196,19 @@ namespace PortfolioApi.Migrations
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
-                    b.Property<string>("FullName")
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("Location")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("RevSeq")
                         .ValueGeneratedOnAdd()
@@ -240,7 +235,120 @@ namespace PortfolioApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email");
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("\"Name\" IS NOT NULL AND \"Status\" <> 5");
+
+                    b.ToTable("JobCategories", (string)null);
+                });
+
+            modelBuilder.Entity("PortfolioApi.Models.Profile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AvailableForHire")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Bio")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("CoverImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Hobbies")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid?>("JobCategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("JobTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Languages")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Nationality")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("RevSeq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<long>("RowId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("RowId"));
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("ShortBio")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("YearsOfExperience")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasFilter("\"Email\" IS NOT NULL AND \"Status\" <> 5");
+
+                    b.HasIndex("JobCategoryId");
 
                     b.ToTable("Profiles", (string)null);
                 });
@@ -596,6 +704,9 @@ namespace PortfolioApi.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("RevSeq")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -626,7 +737,7 @@ namespace PortfolioApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Platform");
+                    b.HasIndex("ProfileId");
 
                     b.ToTable("SocialLinks", (string)null);
                 });
@@ -702,6 +813,27 @@ namespace PortfolioApi.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("PortfolioApi.Models.Education", b =>
+                {
+                    b.HasOne("PortfolioApi.Models.Profile", "Profile")
+                        .WithMany("Educations")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("PortfolioApi.Models.Profile", b =>
+                {
+                    b.HasOne("PortfolioApi.Models.JobCategory", "JobCategory")
+                        .WithMany("Profiles")
+                        .HasForeignKey("JobCategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("JobCategory");
+                });
+
             modelBuilder.Entity("PortfolioApi.Models.ProfileSkill", b =>
                 {
                     b.HasOne("PortfolioApi.Models.Profile", "Profile")
@@ -742,9 +874,29 @@ namespace PortfolioApi.Migrations
                     b.Navigation("SkillCategory");
                 });
 
+            modelBuilder.Entity("PortfolioApi.Models.SocialLink", b =>
+                {
+                    b.HasOne("PortfolioApi.Models.Profile", "Profile")
+                        .WithMany("SocialLinks")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("PortfolioApi.Models.JobCategory", b =>
+                {
+                    b.Navigation("Profiles");
+                });
+
             modelBuilder.Entity("PortfolioApi.Models.Profile", b =>
                 {
+                    b.Navigation("Educations");
+
                     b.Navigation("ProfileSkills");
+
+                    b.Navigation("SocialLinks");
                 });
 
             modelBuilder.Entity("PortfolioApi.Models.ProjectCategory", b =>
