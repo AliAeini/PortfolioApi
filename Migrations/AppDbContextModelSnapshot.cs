@@ -806,10 +806,8 @@ namespace PortfolioApi.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<string>("Platform")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<int>("Platform")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("ProfileId")
                         .HasColumnType("uuid");
@@ -845,6 +843,10 @@ namespace PortfolioApi.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProfileId");
+
+                    b.HasIndex("ProfileId", "Platform")
+                        .IsUnique()
+                        .HasFilter("\"Status\" <> 5");
 
                     b.ToTable("SocialLinks", (string)null);
                 });
