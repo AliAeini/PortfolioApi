@@ -146,43 +146,6 @@ namespace PortfolioApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Projects",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
-                    ShortDescription = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    ImageUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    GithubUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    LiveUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    TechStack = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    DisplayOrder = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    ProjectCategoryId = table.Column<Guid>(type: "uuid", nullable: true),
-                    RowId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RevSeq = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
-                    Status = table.Column<int>(type: "integer", nullable: false),
-                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Projects", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Projects_ProjectCategories_ProjectCategoryId",
-                        column: x => x.ProjectCategoryId,
-                        principalTable: "ProjectCategories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Skills",
                 columns: table => new
                 {
@@ -283,12 +246,54 @@ namespace PortfolioApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectCategoryId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
+                    ShortDescription = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    GithubUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    LiveUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    DisplayOrder = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    RowId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RevSeq = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Projects_Profiles_ProfileId",
+                        column: x => x.ProfileId,
+                        principalTable: "Profiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Projects_ProjectCategories_ProjectCategoryId",
+                        column: x => x.ProjectCategoryId,
+                        principalTable: "ProjectCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SocialLinks",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ProfileId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Platform = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Platform = table.Column<int>(type: "integer", nullable: false),
                     Url = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     IconUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     DisplayOrder = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
@@ -343,6 +348,68 @@ namespace PortfolioApi.Migrations
                         name: "FK_ProfileSkills_Skills_SkillId",
                         column: x => x.SkillId,
                         principalTable: "Skills",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectImages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ImageUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Caption = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    IsCover = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    DisplayOrder = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    RowId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RevSeq = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProjectImages_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectSkillRefs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProfileSkillId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    RowId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RevSeq = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectSkillRefs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProjectSkillRefs_ProfileSkills_ProfileSkillId",
+                        column: x => x.ProfileSkillId,
+                        principalTable: "ProfileSkills",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProjectSkillRefs_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -406,14 +473,41 @@ namespace PortfolioApi.Migrations
                 filter: "\"Name\" IS NOT NULL AND \"Status\" <> 5");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProjectImages_IsCover",
+                table: "ProjectImages",
+                column: "IsCover");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProjectImages_ProjectId",
+                table: "ProjectImages",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_IsFeatured",
                 table: "Projects",
                 column: "IsFeatured");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Projects_ProfileId",
+                table: "Projects",
+                column: "ProfileId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projects_ProjectCategoryId",
                 table: "Projects",
                 column: "ProjectCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProjectSkillRefs_ProfileSkillId",
+                table: "ProjectSkillRefs",
+                column: "ProfileSkillId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProjectSkillRefs_ProjectId_ProfileSkillId",
+                table: "ProjectSkillRefs",
+                columns: new[] { "ProjectId", "ProfileSkillId" },
+                unique: true,
+                filter: "\"Status\" <> 5");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SkillCategories_Name",
@@ -433,6 +527,13 @@ namespace PortfolioApi.Migrations
                 column: "ProfileId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SocialLinks_ProfileId_Platform",
+                table: "SocialLinks",
+                columns: new[] { "ProfileId", "Platform" },
+                unique: true,
+                filter: "\"Status\" <> 5");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
                 table: "Users",
                 column: "Email",
@@ -450,10 +551,10 @@ namespace PortfolioApi.Migrations
                 name: "Experiences");
 
             migrationBuilder.DropTable(
-                name: "ProfileSkills");
+                name: "ProjectImages");
 
             migrationBuilder.DropTable(
-                name: "Projects");
+                name: "ProjectSkillRefs");
 
             migrationBuilder.DropTable(
                 name: "SocialLinks");
@@ -462,13 +563,19 @@ namespace PortfolioApi.Migrations
                 name: "Users");
 
             migrationBuilder.DropTable(
+                name: "ProfileSkills");
+
+            migrationBuilder.DropTable(
+                name: "Projects");
+
+            migrationBuilder.DropTable(
                 name: "Skills");
 
             migrationBuilder.DropTable(
-                name: "ProjectCategories");
+                name: "Profiles");
 
             migrationBuilder.DropTable(
-                name: "Profiles");
+                name: "ProjectCategories");
 
             migrationBuilder.DropTable(
                 name: "SkillCategories");

@@ -28,11 +28,10 @@ public class Profile : BaseEntity
     public string? Hobbies { get; private set; }
 
     public ICollection<ProfileSkill> ProfileSkills { get; private set; } = new List<ProfileSkill>();
-    public ICollection<SocialLink> SocialLinks { get; private set; } = new List<SocialLink>();
+    public List<SocialLink> SocialLinks { get; private set; } = new();
     public ICollection<Education> Educations { get; private set; } = new List<Education>();
     public ICollection<Experience> Experiences { get; private set; } = new List<Experience>();
     public ICollection<Project> Projects { get; private set; } = new List<Project>();
-
     private Profile() { }
 
     public static Profile Create(

@@ -38,6 +38,7 @@ builder.Services.AddScoped<IProfileSkillRepository, ProfileSkillRepository>();
 builder.Services.AddScoped<IEducationRepository, EducationRepository>();
 builder.Services.AddScoped<IExperienceRepository, ExperienceRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<ISocialLinkRepository, SocialLinkRepository>();
 
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
@@ -45,6 +46,7 @@ builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
 builder.Services.AddScoped<IEducationService, EducationService>();
 builder.Services.AddScoped<IExperienceService, ExperienceService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ISocialLinkService, SocialLinkService>();
 
 builder.Services.AddScoped<ISeeder, SkillCategorySeeder>();
 builder.Services.AddScoped<ISeeder, SkillSeeder>();

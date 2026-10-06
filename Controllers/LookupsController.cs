@@ -69,4 +69,14 @@ public class LookupsController : ControllerBase
 
         return ApiResults.Ok(types, $"{types.Count} employment types found");
     }
+
+    [HttpGet("social-platforms")]
+    public IActionResult GetSocialPlatforms()
+    {
+        var platforms = Enum.GetValues<Common.SocialPlatform>()
+            .Select(p => new { Value = (int)p, Name = p.ToString() })
+            .ToList();
+
+        return ApiResults.Ok(platforms, $"{platforms.Count} social platforms found");
+    }
 }
