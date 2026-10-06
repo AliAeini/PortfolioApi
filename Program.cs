@@ -18,34 +18,41 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.Configure<FileUploadSettings>(builder.Configuration.GetSection(FileUploadSettings.SectionName));
+builder.Services.Configure<FileUploadSettings>(
+    builder.Configuration.GetSection(FileUploadSettings.SectionName));
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserHandler, UserHandler>();
-builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
-builder.Services.AddScoped<ISeeder, SkillCategorySeeder>();
-builder.Services.AddScoped<ISeeder, ProjectCategorySeeder>();
-builder.Services.AddScoped<ISeeder, SocialPlatformSeeder>();
-builder.Services.AddScoped<DataSeederOrchestrator>();
-builder.Services.AddScoped<ISeeder, SkillSeeder>();
+
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IProfileSkillRepository, ProfileSkillRepository>();
+builder.Services.AddScoped<IEducationRepository, EducationRepository>();
+builder.Services.AddScoped<IExperienceRepository, ExperienceRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+
+builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
-builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
-builder.Services.AddScoped<ISeeder, JobCategorySeeder>();
-builder.Services.AddScoped<IEducationRepository, EducationRepository>();
 builder.Services.AddScoped<IEducationService, EducationService>();
 builder.Services.AddScoped<IExperienceService, ExperienceService>();
-builder.Services.AddScoped<IExperienceRepository, ExperienceRepository>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+
+builder.Services.AddScoped<ISeeder, SkillCategorySeeder>();
+builder.Services.AddScoped<ISeeder, SkillSeeder>();
+builder.Services.AddScoped<ISeeder, ProjectCategorySeeder>();
+builder.Services.AddScoped<ISeeder, JobCategorySeeder>();
+builder.Services.AddScoped<ISeeder, SocialPlatformSeeder>();
+builder.Services.AddScoped<DataSeederOrchestrator>();
+
+builder.Services.AddTransient<ValidationExceptionHandler>();
 
 var jwtSettings = builder.Configuration
     .GetSection("JwtSettings")
@@ -89,8 +96,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddTransient<ValidationExceptionHandler>();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -126,11 +131,16 @@ app.UseCors("NextJsDev");
 app.UseMiddleware<ValidationExceptionHandler>();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapUploadEndpoints();
 app.MapAuthEndpoints();
 app.MapProfileEndpoints();
 app.MapEducationEndpoints();
 app.MapExperienceEndpoints();
+app.MapProjectEndpoints();
+app.MapLookupEndpoints();
+app.MapSkillEndpoints();
+app.MapProfileSkillEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -138,7 +148,4 @@ using (var scope = app.Services.CreateScope())
     await orchestrator.SeedAllAsync();
 }
 
-app.MapLookupEndpoints();
-app.MapSkillEndpoints();
-app.MapProfileSkillEndpoints();
 app.Run();
