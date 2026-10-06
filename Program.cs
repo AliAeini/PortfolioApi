@@ -1,14 +1,15 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using PortfolioApi.Common;
 using PortfolioApi.Data;
 using PortfolioApi.Data.Seeders;
-using PortfolioApi.Endpoints;
 using PortfolioApi.Infrastructure;
+using PortfolioApi.Infrastructure.Authorization;
 using PortfolioApi.Interfaces;
 using PortfolioApi.Repositories;
 using PortfolioApi.Services;
@@ -52,7 +53,16 @@ builder.Services.AddScoped<ISeeder, JobCategorySeeder>();
 builder.Services.AddScoped<ISeeder, SocialPlatformSeeder>();
 builder.Services.AddScoped<DataSeederOrchestrator>();
 
+builder.Services.AddScoped<IAuthorizationHandler, ProfileOwnerHandler>();
+
 builder.Services.AddTransient<ValidationExceptionHandler>();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy =
+            System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 
 var jwtSettings = builder.Configuration
     .GetSection("JwtSettings")
@@ -75,12 +85,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings.Issuer,
             ValidAudience = jwtSettings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
             ClockSkew = TimeSpan.Zero
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(PolicyNames.ProfileOwner, policy =>
+    {
+        policy.Requirements.Add(new ProfileOwnerRequirement());
+    });
+});
 
 builder.Services.AddCors(options =>
 {
@@ -132,15 +149,7 @@ app.UseMiddleware<ValidationExceptionHandler>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapUploadEndpoints();
-app.MapAuthEndpoints();
-app.MapProfileEndpoints();
-app.MapEducationEndpoints();
-app.MapExperienceEndpoints();
-app.MapProjectEndpoints();
-app.MapLookupEndpoints();
-app.MapSkillEndpoints();
-app.MapProfileSkillEndpoints();
+app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
