@@ -33,10 +33,8 @@ namespace PortfolioApi.Migrations
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Degree")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                    b.Property<int>("Degree")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
@@ -68,6 +66,9 @@ namespace PortfolioApi.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("RevSeq")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -95,6 +96,8 @@ namespace PortfolioApi.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProfileId");
 
                     b.HasIndex("StartDate");
 
@@ -807,6 +810,17 @@ namespace PortfolioApi.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("PortfolioApi.Models.Education", b =>
+                {
+                    b.HasOne("PortfolioApi.Models.Profile", "Profile")
+                        .WithMany("Educations")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+                });
+
             modelBuilder.Entity("PortfolioApi.Models.Profile", b =>
                 {
                     b.HasOne("PortfolioApi.Models.JobCategory", "JobCategory")
@@ -875,6 +889,8 @@ namespace PortfolioApi.Migrations
 
             modelBuilder.Entity("PortfolioApi.Models.Profile", b =>
                 {
+                    b.Navigation("Educations");
+
                     b.Navigation("ProfileSkills");
 
                     b.Navigation("SocialLinks");
