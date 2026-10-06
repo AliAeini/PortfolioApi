@@ -29,7 +29,7 @@ public static class LookupEndpoints
 
             return ApiResults.Ok(categories, $"{categories.Count} project categories found");
         });
-        
+
         group.MapGet("/job-categories", async (AppDbContext db, CancellationToken ct) =>
                {
                    var categories = await db.JobCategories
@@ -39,5 +39,18 @@ public static class LookupEndpoints
 
                    return ApiResults.Ok(categories, $"{categories.Count} job categories found");
                });
+
+        group.MapGet("/degree-levels", () =>
+            {
+                var degrees = Enum.GetValues<DegreeLevel>()
+                .Select(d => new
+                {
+                    Value = (int)d,
+                    Name = d.ToString()
+                })
+                .ToList();
+
+                return ApiResults.Ok(degrees, $"{degrees.Count} degree levels found");
+            });
     }
 }

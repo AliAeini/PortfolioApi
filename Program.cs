@@ -41,6 +41,8 @@ builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
 builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
 builder.Services.AddScoped<ISeeder, JobCategorySeeder>();
+builder.Services.AddScoped<IEducationRepository, EducationRepository>();
+builder.Services.AddScoped<IEducationService, EducationService>();
 
 var jwtSettings = builder.Configuration
     .GetSection("JwtSettings")
@@ -118,6 +120,7 @@ app.UseAuthorization();
 app.MapUploadEndpoints();
 app.MapAuthEndpoints();
 app.MapProfileEndpoints();
+app.MapEducationEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
