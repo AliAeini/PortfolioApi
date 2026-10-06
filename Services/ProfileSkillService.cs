@@ -29,9 +29,9 @@ public class ProfileSkillService : IProfileSkillService
     }
 
     public async Task<ProfileSkillDto> AddAsync(
-        Guid profileId,
-        AddProfileSkillRequest request,
-        CancellationToken cancellationToken = default)
+     Guid profileId,
+     AddProfileSkillRequest request,
+     CancellationToken cancellationToken = default)
     {
         var profile = await _profileRepository.GetByIdAsync(profileId, cancellationToken);
         if (profile is null)
@@ -53,10 +53,11 @@ public class ProfileSkillService : IProfileSkillService
         await _repository.AddAsync(profileSkill, cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
 
-        profileSkill = await _repository.GetByProfileAndSkillAsync(profileId, request.SkillId, cancellationToken)
+        var created = await _repository.GetByProfileAndSkillAsync(
+            profileId, request.SkillId, cancellationToken)
             ?? profileSkill;
 
-        return MapToDto(profileSkill);
+        return MapToDto(created);
     }
 
     public async Task<ProfileSkillDto> UpdateAsync(
@@ -65,12 +66,12 @@ public class ProfileSkillService : IProfileSkillService
         UpdateProfileSkillRequest request,
         CancellationToken cancellationToken = default)
     {
-        var profileSkill = await _repository.GetByIdAsync(profileSkillId, cancellationToken);
+        var profileSkill = await _repository.GetByIdWithSkillAsync(profileSkillId, cancellationToken);
         if (profileSkill is null || profileSkill.ProfileId != profileId)
             throw new KeyNotFoundException($"ProfileSkill with id '{profileSkillId}' not found");
 
         profileSkill.Update(request.Level, request.DisplayOrder);
-        _repository.Update(profileSkill);
+
         await _repository.SaveChangesAsync(cancellationToken);
 
         return MapToDto(profileSkill);
