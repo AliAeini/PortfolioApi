@@ -4,8 +4,10 @@ namespace PortfolioApi.Models;
 
 public class Education : BaseEntity
 {
+    public Guid ProfileId { get; private set; }
+    public Profile Profile { get; private set; } = null!;
     public string Institution { get; private set; } = null!;
-    public string Degree { get; private set; } = null!;
+    public DegreeLevel Degree { get; private set; }
     public string Field { get; private set; } = null!;
     public DateTime StartDate { get; private set; }
     public DateTime? EndDate { get; private set; }
@@ -17,8 +19,9 @@ public class Education : BaseEntity
     private Education() { }
 
     public static Education Create(
+        Guid profileId,
         string institution,
-        string degree,
+        DegreeLevel degree,
         string field,
         DateTime startDate,
         DateTime? endDate = null,
@@ -27,58 +30,89 @@ public class Education : BaseEntity
         string? grade = null,
         int displayOrder = 0)
     {
+        if (profileId == Guid.Empty)
+            throw new ArgumentException("Profile ID is required.", nameof(profileId));
+
         if (string.IsNullOrWhiteSpace(institution))
             throw new ArgumentException("Institution is required.", nameof(institution));
 
-        if (string.IsNullOrWhiteSpace(degree))
-            throw new ArgumentException("Degree is required.", nameof(degree));
+        if (institution.Length > 200)
+            throw new ArgumentException("Institution must not exceed 200 characters.", nameof(institution));
+
+        if (!Enum.IsDefined(typeof(DegreeLevel), degree))
+            throw new ArgumentException("Invalid degree level.", nameof(degree));
 
         if (string.IsNullOrWhiteSpace(field))
             throw new ArgumentException("Field is required.", nameof(field));
 
-        if (endDate.HasValue && endDate < startDate)
+        if (field.Length > 200)
+            throw new ArgumentException("Field must not exceed 200 characters.", nameof(field));
+
+        if (startDate == default)
+            throw new ArgumentException("Start date is required.", nameof(startDate));
+
+        if (endDate.HasValue && endDate.Value < startDate)
             throw new ArgumentException("End date cannot be before start date.", nameof(endDate));
+
+        if (!string.IsNullOrWhiteSpace(description) && description.Length > 2000)
+            throw new ArgumentException("Description must not exceed 2000 characters.", nameof(description));
+
+        if (!string.IsNullOrWhiteSpace(location) && location.Length > 200)
+            throw new ArgumentException("Location must not exceed 200 characters.", nameof(location));
+
+        if (!string.IsNullOrWhiteSpace(grade) && grade.Length > 50)
+            throw new ArgumentException("Grade must not exceed 50 characters.", nameof(grade));
 
         return new Education
         {
+            ProfileId = profileId,
             Institution = institution.Trim(),
-            Degree = degree.Trim(),
+            Degree = degree,
             Field = field.Trim(),
             StartDate = startDate,
             EndDate = endDate,
-            Description = description?.Trim(),
-            Location = location?.Trim(),
-            Grade = grade?.Trim(),
-            DisplayOrder = displayOrder
+            Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim(),
+            Location = string.IsNullOrWhiteSpace(location) ? null : location.Trim(),
+            Grade = string.IsNullOrWhiteSpace(grade) ? null : grade.Trim(),
+            DisplayOrder = displayOrder,
+            Status = EntityStatus.Active
         };
     }
 
     public void Update(
-        string institution, string degree, string field,
-        DateTime startDate, DateTime? endDate,
-        string? description, string? location, string? grade, int displayOrder)
+        string institution,
+        DegreeLevel degree,
+        string field,
+        DateTime startDate,
+        DateTime? endDate,
+        string? description,
+        string? location,
+        string? grade,
+        int displayOrder)
     {
         if (string.IsNullOrWhiteSpace(institution))
             throw new ArgumentException("Institution is required.", nameof(institution));
 
-        if (string.IsNullOrWhiteSpace(degree))
-            throw new ArgumentException("Degree is required.", nameof(degree));
+        if (!Enum.IsDefined(typeof(DegreeLevel), degree))
+            throw new ArgumentException("Invalid degree level.", nameof(degree));
 
         if (string.IsNullOrWhiteSpace(field))
             throw new ArgumentException("Field is required.", nameof(field));
 
-        if (endDate.HasValue && endDate < startDate)
+        if (startDate == default)
+            throw new ArgumentException("Start date is required.", nameof(startDate));
+
+        if (endDate.HasValue && endDate.Value < startDate)
             throw new ArgumentException("End date cannot be before start date.", nameof(endDate));
 
         Institution = institution.Trim();
-        Degree = degree.Trim();
+        Degree = degree;
         Field = field.Trim();
         StartDate = startDate;
         EndDate = endDate;
-        Description = description?.Trim();
-        Location = location?.Trim();
-        Grade = grade?.Trim();
+        Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+        Location = string.IsNullOrWhiteSpace(location) ? null : location.Trim();
+        Grade = string.IsNullOrWhiteSpace(grade) ? null : grade.Trim();
         DisplayOrder = displayOrder;
-        UpdateTimestamp();
     }
 }

@@ -29,6 +29,7 @@ public class Profile : BaseEntity
 
     public ICollection<ProfileSkill> ProfileSkills { get; private set; } = new List<ProfileSkill>();
     public ICollection<SocialLink> SocialLinks { get; private set; } = new List<SocialLink>();
+    public ICollection<Education> Educations { get; private set; } = new List<Education>();
 
     private Profile() { }
 
@@ -62,7 +63,7 @@ public class Profile : BaseEntity
         string? email,
         string? phoneNumber,
         string? avatarUrl,
-        string? coverImageUrl,  
+        string? coverImageUrl,
         string? location,
         string? website,
         DateTime? dateOfBirth,
