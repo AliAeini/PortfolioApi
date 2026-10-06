@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PortfolioApi.Data;
@@ -11,9 +12,11 @@ using PortfolioApi.Data;
 namespace PortfolioApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006125932_AddProjectProfileRelation")]
+    partial class AddProjectProfileRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -441,6 +444,10 @@ namespace PortfolioApi.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<bool>("IsFeatured")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -482,6 +489,10 @@ namespace PortfolioApi.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
+
+                    b.Property<string>("TechStack")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -557,115 +568,6 @@ namespace PortfolioApi.Migrations
                         .HasFilter("\"Name\" IS NOT NULL AND \"Status\" <> 5");
 
                     b.ToTable("ProjectCategories", (string)null);
-                });
-
-            modelBuilder.Entity("PortfolioApi.Models.ProjectImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Caption")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CreatedByUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("DisplayOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<bool>("IsCover")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("RevSeq")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
-
-                    b.Property<long>("RowId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("RowId"));
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IsCover");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ProjectImages", (string)null);
-                });
-
-            modelBuilder.Entity("PortfolioApi.Models.ProjectSkillRef", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CreatedByUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("DisplayOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
-
-                    b.Property<Guid>("ProfileSkillId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("RevSeq")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
-
-                    b.Property<long>("RowId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("RowId"));
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProfileSkillId");
-
-                    b.HasIndex("ProjectId", "ProfileSkillId")
-                        .IsUnique()
-                        .HasFilter("\"Status\" <> 5");
-
-                    b.ToTable("ProjectSkillRefs", (string)null);
                 });
 
             modelBuilder.Entity("PortfolioApi.Models.Skill", b =>
@@ -989,36 +891,6 @@ namespace PortfolioApi.Migrations
                     b.Navigation("ProjectCategory");
                 });
 
-            modelBuilder.Entity("PortfolioApi.Models.ProjectImage", b =>
-                {
-                    b.HasOne("PortfolioApi.Models.Project", "Project")
-                        .WithMany("Images")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("PortfolioApi.Models.ProjectSkillRef", b =>
-                {
-                    b.HasOne("PortfolioApi.Models.ProfileSkill", "ProfileSkill")
-                        .WithMany("ProjectSkillRefs")
-                        .HasForeignKey("ProfileSkillId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PortfolioApi.Models.Project", "Project")
-                        .WithMany("ProjectSkills")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProfileSkill");
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("PortfolioApi.Models.Skill", b =>
                 {
                     b.HasOne("PortfolioApi.Models.SkillCategory", "SkillCategory")
@@ -1057,18 +929,6 @@ namespace PortfolioApi.Migrations
                     b.Navigation("Projects");
 
                     b.Navigation("SocialLinks");
-                });
-
-            modelBuilder.Entity("PortfolioApi.Models.ProfileSkill", b =>
-                {
-                    b.Navigation("ProjectSkillRefs");
-                });
-
-            modelBuilder.Entity("PortfolioApi.Models.Project", b =>
-                {
-                    b.Navigation("Images");
-
-                    b.Navigation("ProjectSkills");
                 });
 
             modelBuilder.Entity("PortfolioApi.Models.ProjectCategory", b =>
