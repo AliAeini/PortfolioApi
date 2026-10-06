@@ -32,7 +32,7 @@ public static class UploadEndpoints
         .RequireAuthorization()
         .DisableAntiforgery();
 
-        group.MapPost("/projects", async (
+        group.MapPost("/project-images", async (
             IFormFileCollection files,
             IFileStorageService storageService,
             HttpContext httpContext,
@@ -44,8 +44,9 @@ public static class UploadEndpoints
 
             try
             {
-                var context = new FileUploadContext(userId.Value, "projects");
-                var paths = await storageService.SaveFilesAsync(files, context, ct);
+                var uploadContext = new FileUploadContext(userId.Value, "projects");
+                var paths = await storageService.SaveFilesAsync(files, uploadContext, ct);
+
                 return Results.Ok(new { success = true, paths });
             }
             catch (InvalidOperationException ex)
